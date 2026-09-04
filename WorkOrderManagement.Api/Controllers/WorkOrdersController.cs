@@ -1,6 +1,10 @@
-﻿namespace WorkOrderManagement.Api.Controllers
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace WorkOrderManagement.Api.Controllers
 {
-    public class WorkOrdersController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class WorkOrdersController : ControllerBase
     {
     }
 }
