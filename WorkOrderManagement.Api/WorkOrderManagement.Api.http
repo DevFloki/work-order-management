@@ -1,6 +1,11 @@
 @WorkOrderManagement.Api_HostAddress = http://localhost:5094
 
-GET {{WorkOrderManagement.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{WorkOrderManagement.Api_HostAddress}}/api/workorders
+Content-Type: application/json
 
-###
+{
+  "title": "Replace hydraulic hose",
+  "description": "Leak detected near pump.",
+  "status": "Open",
+  "priority": "High"
+}

@@ -46,5 +46,20 @@ namespace WorkOrderManagement.Api.Controllers
             return Ok(workOrderById);
         }
 
+        [HttpPost]
+        public ActionResult<WorkOrder> Create(WorkOrder workOrder)
+        {
+            workOrder.Id = _workOrders.Any()
+                ? _workOrders.Max(workOrder => workOrder.Id) + 1
+                : 1;
+
+            _workOrders.Add(workOrder);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = workOrder.Id },
+                workOrder);
+        }
+
     }
 }
