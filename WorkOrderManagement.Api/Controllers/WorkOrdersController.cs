@@ -39,11 +39,11 @@ namespace WorkOrderManagement.Api.Controllers
         public ActionResult<WorkOrder> GetById(int id)
         {
             WorkOrder? workOrderById = _workOrders.FirstOrDefault(workOrder => workOrder.Id == id);
-            if (workOrderById is not null)
+            if (workOrderById is null)
             {
-                return Ok(workOrderById);
+                return NotFound();
             }
-            return NotFound();
+            return Ok(workOrderById);
         }
 
     }
