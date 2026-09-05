@@ -78,5 +78,23 @@ namespace WorkOrderManagement.Api.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, WorkOrder updatedWorkOrder)
+        {
+            WorkOrder? workOrderById = _workOrders.FirstOrDefault(
+                workOrder => workOrder.Id == id);
+
+            if (workOrderById is null)
+            {
+                return NotFound();
+            }
+
+            workOrderById.Title = updatedWorkOrder.Title;
+            workOrderById.Description = updatedWorkOrder.Description;
+            workOrderById.Status = updatedWorkOrder.Status;
+            workOrderById.Priority = updatedWorkOrder.Priority;
+            return NoContent();
+        }
+
     }
 }

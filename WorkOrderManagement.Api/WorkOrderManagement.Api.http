@@ -21,3 +21,15 @@ Content-Type: application/json
 ###
 
 DELETE {{WorkOrderManagement.Api_HostAddress}}/api/workorders/2
+
+###
+
+PUT {{WorkOrderManagement.Api_HostAddress}}/api/workorders/2
+Content-Type: application/json
+
+{
+  "title": "Charge car battery",
+  "description": "Car won't start due to an empty battery.",
+  "status": "Open",
+  "priority": "Low"
+}
