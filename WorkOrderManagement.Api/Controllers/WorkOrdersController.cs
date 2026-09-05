@@ -35,5 +35,16 @@ namespace WorkOrderManagement.Api.Controllers
             return Ok(_workOrders);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult<WorkOrder> GetById(int id)
+        {
+            WorkOrder? workOrderById = _workOrders.FirstOrDefault(workOrder => workOrder.Id == id);
+            if (workOrderById is not null)
+            {
+                return Ok(workOrderById);
+            }
+            return NotFound();
+        }
+
     }
 }
