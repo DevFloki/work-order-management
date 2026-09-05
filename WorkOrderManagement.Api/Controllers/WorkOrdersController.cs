@@ -29,6 +29,11 @@ namespace WorkOrderManagement.Api.Controllers
             }
         };
 
-    }
+        [HttpGet]
+        public ActionResult<List<WorkOrder>> GetAll()
+        {
+            return Ok(_workOrders);
+        }
 
+    }
 }
