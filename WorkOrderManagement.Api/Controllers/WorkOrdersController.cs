@@ -38,7 +38,9 @@ namespace WorkOrderManagement.Api.Controllers
         [HttpGet("{id}")]
         public ActionResult<WorkOrder> GetById(int id)
         {
-            WorkOrder? workOrderById = _workOrders.FirstOrDefault(workOrder => workOrder.Id == id);
+            WorkOrder? workOrderById = _workOrders.FirstOrDefault(
+                workOrder => workOrder.Id == id);
+
             if (workOrderById is null)
             {
                 return NotFound();
@@ -59,6 +61,21 @@ namespace WorkOrderManagement.Api.Controllers
                 nameof(GetById),
                 new { id = workOrder.Id },
                 workOrder);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            WorkOrder? workOrder = _workOrders.FirstOrDefault(
+                workOrder => workOrder.Id == id);
+
+            if (workOrder is null)
+            {
+                return NotFound();
+            }
+
+            _workOrders.Remove(workOrder);
+            return NoContent();
         }
 
     }

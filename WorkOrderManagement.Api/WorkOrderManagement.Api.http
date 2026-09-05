@@ -1,5 +1,13 @@
 @WorkOrderManagement.Api_HostAddress = http://localhost:5094
 
+GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders
+
+###
+
+GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders/2
+
+###
+
 POST {{WorkOrderManagement.Api_HostAddress}}/api/workorders
 Content-Type: application/json
 
@@ -9,3 +17,7 @@ Content-Type: application/json
   "status": "Open",
   "priority": "High"
 }
+
+###
+
+DELETE {{WorkOrderManagement.Api_HostAddress}}/api/workorders/2
