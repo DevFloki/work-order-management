@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WorkOrderManagement.Api.Models;
+using WorkOrderManagement.Api.Services;
 
 namespace WorkOrderManagement.Api.Controllers
 {
@@ -28,6 +29,14 @@ namespace WorkOrderManagement.Api.Controllers
 
             }
         };
+
+        private readonly IWorkOrderService _workOrderService;
+
+        public WorkOrdersController(IWorkOrderService workOrderService)
+        {
+            _workOrderService = workOrderService;
+        }
+
 
         [HttpGet]
         public ActionResult<List<WorkOrder>> GetAll()
@@ -94,6 +103,14 @@ namespace WorkOrderManagement.Api.Controllers
             workOrderById.Status = updatedWorkOrder.Status;
             workOrderById.Priority = updatedWorkOrder.Priority;
             return NoContent();
+        }
+
+        [HttpGet("message")]
+        public IActionResult GetMessage()
+        {
+            string message = _workOrderService.GetMessage();
+            return Ok(message);
+
         }
 
     }

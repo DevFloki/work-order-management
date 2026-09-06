@@ -33,3 +33,7 @@ Content-Type: application/json
   "status": "Open",
   "priority": "Low"
 }
+
+###
+
+GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders/message
