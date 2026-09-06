@@ -8,28 +8,6 @@ namespace WorkOrderManagement.Api.Controllers
     [Route("api/[controller]")]
     public class WorkOrdersController : ControllerBase
     {
-        private static readonly List<WorkOrder> _workOrders = new()
-        {
-            new WorkOrder
-            {
-                Id = 1,
-                Title = "Repair conveyor belt",
-                Description = "Conveyor belt has stopped moving.",
-                Status = "Open",
-                Priority = "High"
-            },
-
-            new WorkOrder
-            {
-                Id = 2,
-                Title = "Inspect ventilation system",
-                Description = "Routine inspection",
-                Status = "Open",
-                Priority = "Medium"
-
-            }
-        };
-
         private readonly IWorkOrderService _workOrderService;
 
         public WorkOrdersController(IWorkOrderService workOrderService)
@@ -41,67 +19,56 @@ namespace WorkOrderManagement.Api.Controllers
         [HttpGet]
         public ActionResult<List<WorkOrder>> GetAll()
         {
-            return Ok(_workOrders);
+            return Ok(_workOrderService.GetAll());
         }
 
         [HttpGet("{id}")]
         public ActionResult<WorkOrder> GetById(int id)
         {
-            WorkOrder? workOrderById = _workOrders.FirstOrDefault(
-                workOrder => workOrder.Id == id);
+            WorkOrder? workOrderById = _workOrderService.GetById(id);
 
             if (workOrderById is null)
             {
                 return NotFound();
             }
+
             return Ok(workOrderById);
         }
 
         [HttpPost]
         public ActionResult<WorkOrder> Create(WorkOrder workOrder)
         {
-            workOrder.Id = _workOrders.Any()
-                ? _workOrders.Max(workOrder => workOrder.Id) + 1
-                : 1;
-
-            _workOrders.Add(workOrder);
+            WorkOrder createdOrder = _workOrderService.Create(workOrder);
 
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = workOrder.Id },
-                workOrder);
+                new { id = createdOrder.Id },
+                createdOrder);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            WorkOrder? workOrder = _workOrders.FirstOrDefault(
-                workOrder => workOrder.Id == id);
+            bool isDeleted = _workOrderService.Delete(id);
 
-            if (workOrder is null)
+            if (!isDeleted)
             {
                 return NotFound();
             }
 
-            _workOrders.Remove(workOrder);
             return NoContent();
         }
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, WorkOrder updatedWorkOrder)
         {
-            WorkOrder? workOrderById = _workOrders.FirstOrDefault(
-                workOrder => workOrder.Id == id);
+            bool isUpdated = _workOrderService.Update(id, updatedWorkOrder);
 
-            if (workOrderById is null)
+            if (!isUpdated)
             {
                 return NotFound();
             }
 
-            workOrderById.Title = updatedWorkOrder.Title;
-            workOrderById.Description = updatedWorkOrder.Description;
-            workOrderById.Status = updatedWorkOrder.Status;
-            workOrderById.Priority = updatedWorkOrder.Priority;
             return NoContent();
         }
 
