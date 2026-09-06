@@ -79,10 +79,5 @@ namespace WorkOrderManagement.Api.Services
             return true;
         }
 
-        public string GetMessage()
-        {
-            return "Work order service is running";
-        }
-
     }
 }

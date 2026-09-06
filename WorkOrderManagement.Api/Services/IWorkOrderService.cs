@@ -9,6 +9,5 @@ public interface IWorkOrderService
     WorkOrder Create(WorkOrder workOrder);
     bool Delete(int id);
     bool Update(int id, WorkOrder updatedWorkOrder);
-    string GetMessage();
 
 }

@@ -72,13 +72,5 @@ namespace WorkOrderManagement.Api.Controllers
             return NoContent();
         }
 
-        [HttpGet("message")]
-        public IActionResult GetMessage()
-        {
-            string message = _workOrderService.GetMessage();
-            return Ok(message);
-
-        }
-
     }
 }
