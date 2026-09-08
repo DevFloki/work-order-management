@@ -7,5 +7,11 @@
         public string Description { get; set; } = "";
         public string Status { get; set; } = "";
         public string Priority { get; set; } = "";
+
+        public int AssetId { get; set; }
+        public Asset Asset { get; set; } = null!;
+
+        public int? TechnicianId { get; set; }
+        public Technician? Technician { get; set; }
     }
 }
