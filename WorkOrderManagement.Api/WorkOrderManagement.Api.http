@@ -4,17 +4,17 @@ GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders
 
 ###
 
-GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders/2
+GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders/1
 
 ###
 
 POST {{WorkOrderManagement.Api_HostAddress}}/api/workorders
 Content-Type: application/json
 {
-  "title": "Replace hydraulic hose",
-  "description": "Leak detected near pump.",
+  "title": "Test invalid asset",
+  "description": "Testing validation",
   "status": "Open",
-  "priority": "High",
+  "priority": "Low",
   "assetId": 1,
   "technicianId": null
 }

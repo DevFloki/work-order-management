@@ -9,5 +9,6 @@ public interface IWorkOrderService
     Task<WorkOrder> CreateAsync(WorkOrder workOrder);
     Task<bool> DeleteAsync(int id);
     Task<bool> UpdateAsync(int id, WorkOrder updatedWorkOrder);
-
+    Task<bool> AssetExistsAsync(int id);
+    Task<bool> TechnicianExistsAsync(int id);
 }

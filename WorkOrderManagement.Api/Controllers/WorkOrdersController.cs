@@ -15,17 +15,33 @@ namespace WorkOrderManagement.Api.Controllers
             _workOrderService = workOrderService;
         }
 
+        private static WorkOrderResponse ToResponse(WorkOrder workOrder)
+        {
+            return new WorkOrderResponse
+            {
+                Id = workOrder.Id,
+                Title = workOrder.Title,
+                Description = workOrder.Description,
+                Status = workOrder.Status,
+                Priority = workOrder.Priority,
+                AssetId = workOrder.AssetId,
+                TechnicianId = workOrder.TechnicianId
+            };
+        }
 
         [HttpGet]
-        public async Task<ActionResult<List<WorkOrder>>> GetAll()
+        public async Task<ActionResult<List<WorkOrderResponse>>> GetAll()
         {
             List<WorkOrder> workOrders = await _workOrderService.GetAllAsync();
 
-            return Ok(workOrders);
+            List<WorkOrderResponse> response =
+                workOrders.Select(ToResponse).ToList();
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<WorkOrder>> GetById(int id)
+        public async Task<ActionResult<WorkOrderResponse>> GetById(int id)
         {
             WorkOrder? workOrderById = await _workOrderService.GetByIdAsync(id);
 
@@ -34,13 +50,27 @@ namespace WorkOrderManagement.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(workOrderById);
+            return Ok(ToResponse(workOrderById));
         }
 
         [HttpPost]
-        public async Task<ActionResult<WorkOrder>> Create(
-            CreatedWorkOrderRequest request)
+        public async Task<ActionResult<WorkOrderResponse>> Create(
+            CreateWorkOrderRequest request)
         {
+            if (!await _workOrderService.AssetExistsAsync(request.AssetId))
+            {
+                return BadRequest(
+                    $"Asset with id {request.AssetId} does not exist.");
+            }
+
+            if (request.TechnicianId is not null &&
+                !await _workOrderService.TechnicianExistsAsync(
+                    request.TechnicianId.Value))
+            {
+                return BadRequest(
+                    $"Technician with id {request.TechnicianId} does not exist.");
+            }
+
             WorkOrder workOrder = new WorkOrder
             {
                 Title = request.Title,
@@ -54,10 +84,12 @@ namespace WorkOrderManagement.Api.Controllers
             WorkOrder createdOrder =
                 await _workOrderService.CreateAsync(workOrder);
 
+            WorkOrderResponse response = ToResponse(createdOrder);
+
             return CreatedAtAction(
                 nameof(GetById),
-                new { id = createdOrder.Id },
-                createdOrder);
+                new { id = response.Id },
+                response);
         }
 
         [HttpDelete("{id}")]
@@ -75,7 +107,7 @@ namespace WorkOrderManagement.Api.Controllers
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(
-            int id, CreatedWorkOrderRequest request)
+            int id, UpdateWorkOrderRequest request)
         {
             WorkOrder workOrder = new()
             {

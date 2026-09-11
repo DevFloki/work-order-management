@@ -69,5 +69,17 @@ namespace WorkOrderManagement.Api.Services
             return true;
         }
 
+        public async Task<bool> AssetExistsAsync(int id)
+        {
+            return await _dbContext.Assets.AnyAsync(
+                asset => asset.Id == id);
+        }
+
+        public async Task<bool> TechnicianExistsAsync(int id)
+        {
+            return await _dbContext.Technicians.AnyAsync(
+                technician => technician.Id == id);
+        }
+
     }
 }
