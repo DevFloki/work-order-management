@@ -15,7 +15,9 @@ Content-Type: application/json
   "title": "Replace hydraulic hose",
   "description": "Leak detected near pump.",
   "status": "Open",
-  "priority": "High"
+  "priority": "High",
+  "assetId": 1,
+  "technicianId": null
 }
 
 ###

@@ -17,15 +17,17 @@ namespace WorkOrderManagement.Api.Controllers
 
 
         [HttpGet]
-        public ActionResult<List<WorkOrder>> GetAll()
+        public async Task<ActionResult<List<WorkOrder>>> GetAll()
         {
-            return Ok(_workOrderService.GetAll());
+            List<WorkOrder> workOrders = await _workOrderService.GetAllAsync();
+
+            return Ok(workOrders);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<WorkOrder> GetById(int id)
+        public async Task<ActionResult<WorkOrder>> GetById(int id)
         {
-            WorkOrder? workOrderById = _workOrderService.GetById(id);
+            WorkOrder? workOrderById = await _workOrderService.GetByIdAsync(id);
 
             if (workOrderById is null)
             {
@@ -36,9 +38,21 @@ namespace WorkOrderManagement.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<WorkOrder> Create(WorkOrder workOrder)
+        public async Task<ActionResult<WorkOrder>> Create(
+            CreatedWorkOrderRequest request)
         {
-            WorkOrder createdOrder = _workOrderService.Create(workOrder);
+            WorkOrder workOrder = new WorkOrder
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Status = request.Status,
+                Priority = request.Priority,
+                AssetId = request.AssetId,
+                TechnicianId = request.TechnicianId
+            };
+
+            WorkOrder createdOrder =
+                await _workOrderService.CreateAsync(workOrder);
 
             return CreatedAtAction(
                 nameof(GetById),

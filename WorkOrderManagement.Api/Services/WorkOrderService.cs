@@ -1,9 +1,18 @@
-﻿using WorkOrderManagement.Api.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using WorkOrderManagement.Api.Data;
+using WorkOrderManagement.Api.Models;
 
 namespace WorkOrderManagement.Api.Services
 {
     public class WorkOrderService : IWorkOrderService
     {
+        private readonly AppDbContext _dbContext;
+
+        public WorkOrderService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         private static readonly List<WorkOrder> _workOrders = new()
         {
             new WorkOrder
@@ -26,24 +35,22 @@ namespace WorkOrderManagement.Api.Services
             }
         };
 
-        public List<WorkOrder> GetAll()
+        public async Task<List<WorkOrder>> GetAllAsync()
         {
-            return _workOrders;
+            return await _dbContext.WorkOrders.ToListAsync();
         }
 
-        public WorkOrder? GetById(int id)
+        public async Task<WorkOrder?> GetByIdAsync(int id)
         {
-            return _workOrders.FirstOrDefault(
+            return await _dbContext.WorkOrders.FirstOrDefaultAsync(
                 workOrder => workOrder.Id == id);
         }
 
-        public WorkOrder Create(WorkOrder workOrder)
+        public async Task<WorkOrder> CreateAsync(WorkOrder workOrder)
         {
-            workOrder.Id = _workOrders.Any()
-                ? _workOrders.Max(workOrder => workOrder.Id) + 1
-                : 1;
+            _dbContext.Add(workOrder);
 
-            _workOrders.Add(workOrder);
+            await _dbContext.SaveChangesAsync();
 
             return workOrder;
         }
