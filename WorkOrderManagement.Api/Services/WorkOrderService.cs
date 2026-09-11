@@ -63,6 +63,8 @@ namespace WorkOrderManagement.Api.Services
             existingWorkOrder.Description = updatedWorkOrder.Description;
             existingWorkOrder.Status = updatedWorkOrder.Status;
             existingWorkOrder.Priority = updatedWorkOrder.Priority;
+            existingWorkOrder.AssetId = updatedWorkOrder.AssetId;
+            existingWorkOrder.TechnicianId = updatedWorkOrder.TechnicianId;
 
             await _dbContext.SaveChangesAsync();
 

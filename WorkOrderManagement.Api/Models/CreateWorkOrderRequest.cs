@@ -2,7 +2,7 @@
 
 namespace WorkOrderManagement.Api.Models
 {
-    public class CreateWorkOrderRequest
+    public class CreateWorkOrderRequest : IWorkOrderRequest
     {
         [Required]
         [StringLength(100, MinimumLength = 3)]

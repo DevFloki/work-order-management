@@ -29,6 +29,23 @@ namespace WorkOrderManagement.Api.Controllers
             };
         }
 
+        public async Task<string?> ValidateReferencesAsync(IWorkOrderRequest request)
+        {
+            if (!await _workOrderService.AssetExistsAsync(request.AssetId))
+            {
+                return $"Asset with id {request.AssetId} does not exist.";
+            }
+
+            if (request.TechnicianId is not null &&
+                !await _workOrderService.TechnicianExistsAsync(
+                    request.TechnicianId.Value))
+            {
+                return $"Technician with id {request.TechnicianId} does not exist.";
+            }
+
+            return null;
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<WorkOrderResponse>>> GetAll()
         {
@@ -57,18 +74,11 @@ namespace WorkOrderManagement.Api.Controllers
         public async Task<ActionResult<WorkOrderResponse>> Create(
             CreateWorkOrderRequest request)
         {
-            if (!await _workOrderService.AssetExistsAsync(request.AssetId))
-            {
-                return BadRequest(
-                    $"Asset with id {request.AssetId} does not exist.");
-            }
+            string? inputCheck = await ValidateReferencesAsync(request);
 
-            if (request.TechnicianId is not null &&
-                !await _workOrderService.TechnicianExistsAsync(
-                    request.TechnicianId.Value))
+            if (inputCheck is not null)
             {
-                return BadRequest(
-                    $"Technician with id {request.TechnicianId} does not exist.");
+                return BadRequest(inputCheck);
             }
 
             WorkOrder workOrder = new WorkOrder
@@ -109,6 +119,13 @@ namespace WorkOrderManagement.Api.Controllers
         public async Task<IActionResult> Update(
             int id, UpdateWorkOrderRequest request)
         {
+            string? inputCheck = await ValidateReferencesAsync(request);
+
+            if (inputCheck is not null)
+            {
+                return BadRequest(inputCheck);
+            }
+
             WorkOrder workOrder = new()
             {
                 Title = request.Title,

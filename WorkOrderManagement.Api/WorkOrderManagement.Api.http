@@ -32,7 +32,7 @@ Content-Type: application/json
   "description": "Honda needs an oil change.",
   "status": "Open",
   "priority": "Medium",
-  "assetId": 2,
+  "assetId": 1,
   "technicianId": null
 }
 
