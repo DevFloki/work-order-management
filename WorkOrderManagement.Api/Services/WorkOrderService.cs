@@ -13,28 +13,6 @@ namespace WorkOrderManagement.Api.Services
             _dbContext = dbContext;
         }
 
-        private static readonly List<WorkOrder> _workOrders = new()
-        {
-            new WorkOrder
-            {
-                Id = 1,
-                Title = "Repair conveyor belt",
-                Description = "Conveyor belt has stopped moving.",
-                Status = "Open",
-                Priority = "High"
-            },
-
-            new WorkOrder
-            {
-                Id = 2,
-                Title = "Inspect ventilation system",
-                Description = "Routine inspection",
-                Status = "Open",
-                Priority = "Medium"
-
-            }
-        };
-
         public async Task<List<WorkOrder>> GetAllAsync()
         {
             return await _dbContext.WorkOrders.ToListAsync();
@@ -55,9 +33,9 @@ namespace WorkOrderManagement.Api.Services
             return workOrder;
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            WorkOrder? workOrder = _workOrders.FirstOrDefault(
+            WorkOrder? workOrder = await _dbContext.WorkOrders.FirstOrDefaultAsync(
                 workOrder => workOrder.Id == id);
 
             if (workOrder is null)
@@ -65,24 +43,29 @@ namespace WorkOrderManagement.Api.Services
                 return false;
             }
 
-            _workOrders.Remove(workOrder);
+            _dbContext.Remove(workOrder);
+            await _dbContext.SaveChangesAsync();
+
             return true;
         }
 
-        public bool Update(int id, WorkOrder updatedWorkOrder)
+        public async Task<bool> UpdateAsync(int id, WorkOrder updatedWorkOrder)
         {
-            WorkOrder? workOrderById = _workOrders.FirstOrDefault(
+            WorkOrder? existingWorkOrder = await _dbContext.WorkOrders.FirstOrDefaultAsync(
                 workOrder => workOrder.Id == id);
 
-            if (workOrderById is null)
+            if (existingWorkOrder is null)
             {
                 return false;
             }
 
-            workOrderById.Title = updatedWorkOrder.Title;
-            workOrderById.Description = updatedWorkOrder.Description;
-            workOrderById.Status = updatedWorkOrder.Status;
-            workOrderById.Priority = updatedWorkOrder.Priority;
+            existingWorkOrder.Title = updatedWorkOrder.Title;
+            existingWorkOrder.Description = updatedWorkOrder.Description;
+            existingWorkOrder.Status = updatedWorkOrder.Status;
+            existingWorkOrder.Priority = updatedWorkOrder.Priority;
+
+            await _dbContext.SaveChangesAsync();
+
             return true;
         }
 

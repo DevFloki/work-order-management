@@ -61,9 +61,9 @@ namespace WorkOrderManagement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            bool isDeleted = _workOrderService.Delete(id);
+            bool isDeleted = await _workOrderService.DeleteAsync(id);
 
             if (!isDeleted)
             {
@@ -74,9 +74,19 @@ namespace WorkOrderManagement.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, WorkOrder updatedWorkOrder)
+        public async Task<IActionResult> Update(
+            int id, CreatedWorkOrderRequest request)
         {
-            bool isUpdated = _workOrderService.Update(id, updatedWorkOrder);
+            WorkOrder workOrder = new()
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Status = request.Status,
+                Priority = request.Priority,
+                AssetId = request.AssetId,
+                TechnicianId = request.TechnicianId
+            };
+            bool isUpdated = await _workOrderService.UpdateAsync(id, workOrder);
 
             if (!isUpdated)
             {

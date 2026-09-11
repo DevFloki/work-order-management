@@ -7,7 +7,7 @@ public interface IWorkOrderService
     Task<List<WorkOrder>> GetAllAsync();
     Task<WorkOrder?> GetByIdAsync(int id);
     Task<WorkOrder> CreateAsync(WorkOrder workOrder);
-    bool Delete(int id);
-    bool Update(int id, WorkOrder updatedWorkOrder);
+    Task<bool> DeleteAsync(int id);
+    Task<bool> UpdateAsync(int id, WorkOrder updatedWorkOrder);
 
 }
