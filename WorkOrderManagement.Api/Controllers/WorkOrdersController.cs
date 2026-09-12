@@ -29,7 +29,7 @@ namespace WorkOrderManagement.Api.Controllers
             };
         }
 
-        public async Task<string?> ValidateReferencesAsync(IWorkOrderRequest request)
+        private async Task<string?> ValidateReferencesAsync(IWorkOrderRequest request)
         {
             if (!await _workOrderService.AssetExistsAsync(request.AssetId))
             {
