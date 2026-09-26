@@ -13,9 +13,56 @@ namespace WorkOrderManagement.Api.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<WorkOrder>> GetAllAsync()
+        public async Task<List<WorkOrder>> GetAllAsync(
+            string? status,
+            string? priority,
+            int? assetId,
+            int? technicianId,
+            string? sortBy,
+            string? sortDirection,
+            int? page,
+            int? pageSize)
         {
-            return await _dbContext.WorkOrders.ToListAsync();
+            IQueryable<WorkOrder> workOrders = _dbContext.WorkOrders;
+
+            if (!string.IsNullOrWhiteSpace(status))
+                workOrders = workOrders.Where(w => w.Status == status);
+
+            if (!string.IsNullOrWhiteSpace(priority))
+                workOrders = workOrders.Where(w => w.Priority == priority);
+
+            if (assetId is not null)
+                workOrders = workOrders.Where(w => w.AssetId == assetId);
+
+            if (technicianId is not null)
+                workOrders = workOrders.Where(w => w.TechnicianId == technicianId);
+
+            bool isDesc = string.Equals(
+                sortDirection,
+                "desc",
+                StringComparison.OrdinalIgnoreCase);
+
+            workOrders = sortBy?.ToLower() switch
+            {
+                "title" => isDesc
+                ? workOrders
+                .OrderByDescending(w => w.Title)
+                .ThenByDescending(w => w.Id)
+                : workOrders
+                .OrderBy(w => w.Title)
+                .ThenBy(w => w.Id),
+
+                _ => isDesc
+                ? workOrders.OrderByDescending(w => w.Id)
+                : workOrders.OrderBy(w => w.Id)
+            };
+
+            int actualSize = pageSize ?? 10;
+            int actualPage = page ?? 1;
+            int skip = (actualPage - 1) * actualSize;
+            workOrders = workOrders.Skip(skip).Take(actualSize);
+
+            return await workOrders.ToListAsync();
         }
 
         public async Task<WorkOrder?> GetByIdAsync(int id)

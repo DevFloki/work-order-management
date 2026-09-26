@@ -47,9 +47,28 @@ namespace WorkOrderManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<WorkOrderResponse>>> GetAll()
+        public async Task<ActionResult<List<WorkOrderResponse>>> GetAll(
+            string? status,
+            string? priority,
+            int? assetId,
+            int? technicianId,
+            string? sortBy,
+            string? sortDirection,
+            int? page,
+            int? pageSize)
         {
-            List<WorkOrder> workOrders = await _workOrderService.GetAllAsync();
+            if (page < 1 || pageSize is < 1 or > 100)
+                return BadRequest();
+
+            List<WorkOrder> workOrders = await _workOrderService.GetAllAsync(
+                status,
+                priority,
+                assetId,
+                technicianId,
+                sortBy,
+                sortDirection,
+                page,
+                pageSize);
 
             List<WorkOrderResponse> response =
                 workOrders.Select(ToResponse).ToList();

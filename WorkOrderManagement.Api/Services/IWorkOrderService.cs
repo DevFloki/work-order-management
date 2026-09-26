@@ -4,7 +4,15 @@ using WorkOrderManagement.Api.Models;
 
 public interface IWorkOrderService
 {
-    Task<List<WorkOrder>> GetAllAsync();
+    Task<List<WorkOrder>> GetAllAsync(
+        string? status,
+        string? priority,
+        int? assetId,
+        int? technicianId,
+        string? sortBy,
+        string? sortDirection,
+        int? page,
+        int? pageSize);
     Task<WorkOrder?> GetByIdAsync(int id);
     Task<WorkOrder> CreateAsync(WorkOrder workOrder);
     Task<bool> DeleteAsync(int id);

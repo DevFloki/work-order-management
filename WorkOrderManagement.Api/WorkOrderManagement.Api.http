@@ -4,7 +4,7 @@ GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders
 
 ###
 
-GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders/1
+GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders?page=1&&pageSize=10
 
 ###
 
@@ -16,7 +16,7 @@ Content-Type: application/json
   "status": "Open",
   "priority": "Low",
   "assetId": 1,
-  "technicianId": null
+  "technicianId": 1
 }
 
 ###
