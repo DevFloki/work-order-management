@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WorkOrderManagement.Api.Controllers;
 using WorkOrderManagement.Api.Models;
@@ -26,7 +27,35 @@ namespace WorkOrderManagement.Tests.Controllers
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
+        }
 
+        [Fact]
+        public async Task GetById_WhenWorkOrderExists_ReturnsOkWithWorkOrder()
+        {
+            var workOrder = new WorkOrder
+            {
+                Id = 1,
+                Title = "Fix pump",
+                Description = "Pump is leaking",
+                Status = "Open",
+                Priority = "High",
+                AssetId = 2
+            };
+
+            var serviceMock = new Mock<IWorkOrderService>();
+
+            serviceMock
+                .Setup(s => s.GetByIdAsync(1))
+                .ReturnsAsync(workOrder);
+
+            var controller = new WorkOrdersController(serviceMock.Object);
+
+            var result = await controller.GetById(1);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var model = Assert.IsType<WorkOrderResponse>(okResult.Value);
+            Assert.Equal(workOrder.Id, model.Id);
+            Assert.Equal(workOrder.Title, model.Title);
         }
 
     }
