@@ -79,6 +79,10 @@ namespace WorkOrderManagement.Api.Services
 
             await _dbContext.SaveChangesAsync();
 
+            _logger.LogInformation(
+                "Work order {WorkOrderId} was created",
+                workOrder.Id);
+
             return workOrder;
         }
 
