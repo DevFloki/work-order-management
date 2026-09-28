@@ -1,5 +1,9 @@
 @WorkOrderManagement.Api_HostAddress = http://localhost:5094
 
+http://localhost:5094/openapi/v1.json
+
+###
+
 GET {{WorkOrderManagement.Api_HostAddress}}/api/workorders
 
 ###
@@ -35,4 +39,3 @@ Content-Type: application/json
   "assetId": 1,
   "technicianId": null
 }
-
