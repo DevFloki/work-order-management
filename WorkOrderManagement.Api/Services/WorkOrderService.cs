@@ -7,10 +7,12 @@ namespace WorkOrderManagement.Api.Services
     public class WorkOrderService : IWorkOrderService
     {
         private readonly AppDbContext _dbContext;
+        private readonly ILogger<WorkOrderService> _logger;
 
-        public WorkOrderService(AppDbContext dbContext)
+        public WorkOrderService(AppDbContext dbContext, ILogger<WorkOrderService> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<WorkOrder>> GetAllAsync(
