@@ -9,10 +9,14 @@ namespace WorkOrderManagement.Api.Controllers
     public class WorkOrdersController : ControllerBase
     {
         private readonly IWorkOrderService _workOrderService;
+        private readonly ILogger<WorkOrdersController> _logger;
 
-        public WorkOrdersController(IWorkOrderService workOrderService)
+        public WorkOrdersController(
+            IWorkOrderService workOrderService,
+            ILogger<WorkOrdersController> logger)
         {
             _workOrderService = workOrderService;
+            _logger = logger;
         }
 
         private static WorkOrderResponse ToResponse(WorkOrder workOrder)
@@ -72,6 +76,8 @@ namespace WorkOrderManagement.Api.Controllers
 
             List<WorkOrderResponse> response =
                 workOrders.Select(ToResponse).ToList();
+
+            _logger.LogInformation("Getting all work orders");
 
             return Ok(response);
         }
