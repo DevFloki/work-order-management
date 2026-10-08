@@ -4,6 +4,8 @@ using WorkOrderManagement.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddAzureWebAppDiagnostics();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
