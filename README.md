@@ -11,19 +11,22 @@ with a current focus on specializing within the C# and .NET ecosystem.
 
 Create, view, update or delete data from the database with HTTP requests.
 
-Query parameters to pagination, filterering and sorting desired data.
+Query parameters to pagination, filtering and sorting desired data.
 
 Unit & integration tests, making sure that every layer of the application works as expected.
 
 ## Tech Stack
 
-C# -
-ASP.NET Core -
-Entity Framework Core -
-PostgreSQL -
-xUnit -
-Moq -
-Mvc.Testing
+- C#
+- ASP.NET Core
+- Entity Framework Core
+- PostgreSQL
+- xUnit
+- Moq
+- Microsoft.AspNetCore.Mvc.Testing
+- Azure App Service
+- Azure Database for postgreSQL flexible server
+- Azure App Service logging
 
 ## Architecture / Project Structure
 
@@ -44,6 +47,15 @@ access to the entity sets for querying.
 
 **Tests:** Runs unit tests with Moq and integration tests with Mvc.Testing
 to make sure every layer of the application is getting tested.
+
+**Azure:** The project is also currently deployed to Microsoft Azure using a 
+Resource group, App Service plan, App Service and an Azure Database for PostgreSQL flexible server.
+
+**Diagram including Azure:** 
+```
+Client(HTTPS) → Azure App Service → ASP.NET Core Web API → Controller → Service
+→ EF Core / DbContext → Npgsql → Azure Database for PostgreSQL
+```
 
 ## API
 
@@ -73,8 +85,10 @@ To run this Web API locally, you need to install the following tools on your mac
 
 #### 1. Configure the Database
 
-The API uses **PostgreSQL**. Manage your user secrets in the `WorkOrderManagement.Api` project.
-Ensure your connection strings matches your databases credentials:
+The API uses **PostgreSQL**. Manage your user secrets in the `WorkOrderManagement.Api` project,
+and remember: **User secrets contain sensitive data and should not be uploaded to github!**
+
+Ensure your connection strings match your databases credentials:
 ```json
 {
   "ConnectionStrings": {
@@ -84,6 +98,14 @@ Ensure your connection strings matches your databases credentials:
   }
 }
 ```
+
+If the API is deployed to Microsoft Azure, then configure the App Service 
+environment variable with the corresponding fields:
+```
+Name: ConnectionStrings__DefaultConnection
+Value: Host=<server>.postgres.database.azure.com;Port=5432;Database=workorder_management;Username=<username>;Password=<password>;SSL Mode=Require;
+```
+App settings are initialised at runtime and can override `appsettings.json`.
 
 #### 2. Apply Database Migrations
 Navigate to the root directory where your solution (`.slnx`) or the API project sits,
@@ -110,7 +132,25 @@ To run all unit and integration tests, navigate to the root directory (or the te
 dotnet test
 ```
 
-### Notes
+## Deployment
+
+The API is deployed to Microsoft Azure using:
+
+- Azure App Service for hosting the ASP.NET Core API
+- Azure Database for PostgreSQL Flexible Server for persistent storage
+- App Service environment variables for production configuration and secrets
+- Azure App Service diagnostics and Log Stream for application logging
+
+The application is currently deployed manually by creating a Release
+publish artifact with:
+
+```bash
+dotnet publish -c Release
+```
+
+The published output is packaged and deployed to Azure App Service.
+
+## Notes
 
 The application is built with four main components: `Controller → Service → EF Core → PostgreSQL`.
 This is done to:
@@ -123,8 +163,10 @@ The application is currently just a basic CRUD API.
 Only the GetAll() method currently supports filtering/sorting/pagination through 
 query parameters.
 
-The unit tests spesifically tests the controller directly, isolating the methods 
-so the api or database does not effect the outcome of the tests. 
+The unit tests specifically tests the controller directly, isolating the methods 
+so the api or database does not affect the outcome of the tests. 
 
 Integration tests on the other hand includes several layers of the system,
 so it will catch problems with the api or database.
+
+The API is currently deployed to Microsoft Azure, but the live endpoint is not publicly linked yet because authentication/authorization has not been implemented.
