@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using WorkOrderManagement.Api.Controllers;
 using WorkOrderManagement.Api.Models;
@@ -18,7 +19,9 @@ namespace WorkOrderManagement.Tests.Controllers
                 .Setup(s => s.GetByIdAsync(999))
                 .ReturnsAsync((WorkOrder?)null);
 
-            var controller = new WorkOrdersController(serviceMock.Object);
+            var mockLogger = new Mock<ILogger<WorkOrdersController>>();
+
+            var controller = new WorkOrdersController(serviceMock.Object, mockLogger.Object);
 
             // Act
             var result = await controller.GetById(999);
@@ -46,7 +49,9 @@ namespace WorkOrderManagement.Tests.Controllers
                 .Setup(s => s.GetByIdAsync(1))
                 .ReturnsAsync(workOrder);
 
-            var controller = new WorkOrdersController(serviceMock.Object);
+            var mockLogger = new Mock<ILogger<WorkOrdersController>>();
+
+            var controller = new WorkOrdersController(serviceMock.Object, mockLogger.Object);
 
             var result = await controller.GetById(1);
 
@@ -64,8 +69,11 @@ namespace WorkOrderManagement.Tests.Controllers
         [InlineData(null, 101)]
         public async Task GetAll_WhenPaginationIsInvalid_ReturnsBadRequest(int? page, int? pageSize)
         {
+            var mockLogger = new Mock<ILogger<WorkOrdersController>>();
+
             var serviceMock = new Mock<IWorkOrderService>();
-            var controller = new WorkOrdersController(serviceMock.Object);
+
+            var controller = new WorkOrdersController(serviceMock.Object, mockLogger.Object);
 
             var result = await controller.GetAll(
                 null,
