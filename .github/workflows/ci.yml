@@ -41,3 +41,13 @@ jobs:
         env:
           ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=dummy;Username=dummy;Password=dummy"
           ConnectionStrings__TestConnection: "Host=localhost;Port=5432;Database=workorder_ci;Username=postgres;Password=postgres"
+
+      - name: Publish API
+        run: dotnet publish ./WorkOrderManagement.Api/WorkOrderManagement.Api.csproj --configuration Release --no-build --output ./publish
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: workorder-api
+          path: ./publish/
+          if-no-files-found: error
