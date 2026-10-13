@@ -82,3 +82,10 @@ jobs:
 
       - name: Verify Azure login
         run: az account show --query name --output tsv
+
+      - name: Deploy API to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: workorder-api-devfloki
+          package: ./publish
+
