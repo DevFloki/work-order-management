@@ -1,24 +1,43 @@
 name: CI
 
 on:
-    push:
-    pull_request:
+  push:
+  pull_request:
 
 jobs:
-    build:
-      runs-on: ubuntu-latest
-        
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v7
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: workorder_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d workorder_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
           
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v6
-          with:
-            dotnet-version: '10.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
            
-        - name: Restore dependencies
-          run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
          
-        - name: Build solution
-          run: dotnet build --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+        
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build
+        env:
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=dummy;Username=dummy;Password=dummy"
+          ConnectionStrings__TestConnection: "Host=localhost;Port=5432;Database=workorder_ci;Username=postgres;Password=postgres"
