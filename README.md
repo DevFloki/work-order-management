@@ -1,172 +1,168 @@
 # Work Order Management
+An ASP.NET Core Web API for managing maintenance work orders associated with assets and technicians.
+The project focuses on REST API design, database access, automated testing, and deployment to Microsoft Azure.
 
-This is a backend ASP.NET Core Web API built for maintenance work-order management.
-The application provides the functionality needed to manage customers, assets, work orders
-and technicians.
-
-I am currently developing this application to learn the fundamentals of software development,
-with a current focus on specializing within the C# and .NET ecosystem.
+The application is under active development.
 
 ## Features
-
-Create, view, update or delete data from the database with HTTP requests.
-
-Query parameters to pagination, filtering and sorting desired data.
-
-Unit & integration tests, making sure that every layer of the application works as expected.
+- **Work order management:** Create, retrieve, update, and delete work orders.
+- **Filtering and pagination:** Filter work orders by status, priority, asset, or technician; sort by ID or title; and paginate results.
+- **Input validation:** Validate request fields and check that referenced assets and technicians exist.
+- **Data transfer objects:** Separate API request/response models from database entities.
+- **Automated testing:** Unit tests for controllers and integration tests that exercise the API against PostgreSQL.
+- **CI/CD:** GitHub Actions builds, tests, and publishes the application, with deployment to Azure App Service on pushes to `main`.
+- **Health checks:** A `/health` endpoint for basic application health reporting.
 
 ## Tech Stack
+| Area | Technologies |
+| --- | --- |
+| Language and framework | C#, .NET 10, ASP.NET Core Web API |
+| Data access | Entity Framework Core, Npgsql |
+| Database | PostgreSQL |
+| Testing | xUnit, Moq, `Microsoft.AspNetCore.Mvc.Testing` |
+| CI/CD | GitHub Actions |
+| Hosting and diagnostics | Azure App Service, Azure Database for PostgreSQL, Azure App Service logging |
 
-- C#
-- ASP.NET Core
-- Entity Framework Core
-- PostgreSQL
-- xUnit
-- Moq
-- Microsoft.AspNetCore.Mvc.Testing
-- Azure App Service
-- Azure Database for postgreSQL flexible server
-- Azure App Service logging
+## Architecture
 
-## Architecture / Project Structure
+The application separates HTTP request handling, business logic, and data access:
 
-**Controllers:** Handles HTTP-requests, does input validation and calls the service class
-whenever a request requires an action from the database. Limits the database information
-sent back in the HTTP responses by using data transfer objects.
-
-**Services:** Responsible for the business logic, it mainly builds and execute queries 
-based on the data received from HTTP requests.
-
-**Models:** C# classes that represents the database entities. They define the
-data structure by specifying primary keys, foreign keys, 
-reference navigation properties, and collection navigation properties.
-
-**Data:** Configures the EF Core model. It bridges the C# classes to the database
-by mapping entities and properties to actual tables and columns, while providing
-access to the entity sets for querying.
-
-**Tests:** Runs unit tests with Moq and integration tests with Mvc.Testing
-to make sure every layer of the application is getting tested.
-
-**Azure:** The project is also currently deployed to Microsoft Azure using a 
-Resource group, App Service plan, App Service and an Azure Database for PostgreSQL flexible server.
-
-**Diagram including Azure:** 
-```
-Client(HTTPS) → Azure App Service → ASP.NET Core Web API → Controller → Service
-→ EF Core / DbContext → Npgsql → Azure Database for PostgreSQL
+```text
+HTTP client
+    ↓
+WorkOrdersController (HTTP endpoints, validation, response mapping)
+    ↓
+IWorkOrderService / WorkOrderService (work-order operations and queries)
+    ↓
+AppDbContext / Entity Framework Core
+    ↓
+PostgreSQL
 ```
 
-## API
+- **Controllers** accept and validate requests, call the service layer, and return HTTP responses.
+- **Services** implement work-order operations, including filters, sorting, and pagination.
+- **Models and DTOs** define persisted entities and the data exposed by the API.
+- **Data and migrations** configure PostgreSQL persistence through Entity Framework Core.
+- **Tests** verify controller behavior and the API's interaction with a test database.
 
-**GetAll():** The primary GET endpoint for viewing a list of work orders with 
-query parameters for status, priority, assetId, technicianId, sortBy, sortDirection, 
-page and pageSize.
+## API endpoints
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/api/workorders` | List work orders, with optional filters, sorting, and pagination |
+| `GET` | `/api/workorders/{id}` | Retrieve one work order |
+| `POST` | `/api/workorders` | Create a work order |
+| `PUT` | `/api/workorders/{id}` | Replace an existing work order's editable fields |
+| `DELETE` | `/api/workorders/{id}` | Delete a work order |
+| `GET` | `/health` | Basic application health check |
 
-**GetById():** Another GET endpoint for viewing a specific work order based on its id.
+### Querying work orders
+Example:
 
-**Create():** POST endpoint for creating new work orders.
+```http
+GET /api/workorders?status=Open&priority=High&sortBy=title&sortDirection=asc&page=1&pageSize=10
+```
 
-**Delete():** DELETE endpoint for deleting work orders by id.
+Supported filters are `status`, `priority`, `assetId`, and `technicianId`. Sorting uses `sortBy` (`title` or the default `id` order) and `sortDirection` (`asc` or `desc`). Pagination defaults to page 1 with 10 results per page; `pageSize` is limited to 100.
 
-**Update():** PUT endpoint for updating work orders. 
-currently have to update every column in the table.
+Supported statuses are `Open`, `InProgress`, and `Completed`. Supported priorities are `Low`, `Medium`, and `High`.
 
-## Running the Project
+### Creating a work order
+Example request:
 
-### Prerequisites
+```http
+@WorkOrderManagement.Api_HostAddress = http://localhost:5094
 
-To run this Web API locally, you need to install the following tools on your machine:
-* .NET 10 SDK or higher - [Download .NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-* PostgreSQL Database - A running instance (local installation)
-* EF Core CLI Tools - Installed via terminal `dotnet tool install --global dotnet-ef`
-
-### Getting Started
-
-#### 1. Configure the Database
-
-The API uses **PostgreSQL**. Manage your user secrets in the `WorkOrderManagement.Api` project,
-and remember: **User secrets contain sensitive data and should not be uploaded to github!**
-
-Ensure your connection strings match your databases credentials:
-```json
+POST {{WorkOrderManagement.Api_HostAddress}}/api/workorders
+Content-Type: application/json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=WorkOrderDb;Username=postgres;Password=your_password",
-    "TestConnection": "Host=localhost;Database=WorkOrderTestDb;Username=postgres;Password=your_password"
-
-  }
+  "title": "Test title",
+  "description": "Test description",
+  "status": "Open",
+  "priority": "Medium",
+  "assetId": 1,
+  "technicianId": null
 }
 ```
 
-If the API is deployed to Microsoft Azure, then configure the App Service 
-environment variable with the corresponding fields:
-```
-Name: ConnectionStrings__DefaultConnection
-Value: Host=<server>.postgres.database.azure.com;Port=5432;Database=workorder_management;Username=<username>;Password=<password>;SSL Mode=Require;
-```
-App settings are initialised at runtime and can override `appsettings.json`.
+`assetId` must reference an existing asset. If provided, `technicianId` must reference an existing technician. A successful creation returns `201 Created`; invalid input or references return `400 Bad Request`.
 
-#### 2. Apply Database Migrations
-Navigate to the root directory where your solution (`.slnx`) or the API project sits,
-and run the following command to create the database schema:
+The API currently provides endpoints for **work orders only**; it does not expose separate endpoints to create assets, customers, or technicians.
+
+## Running locally
+
+### Prerequisites
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- A running PostgreSQL instance
+- EF Core command-line tools: `dotnet tool install --global dotnet-ef`
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/DevFloki/work-order-management.git
+cd work-order-management
+```
+
+### 2. Configure PostgreSQL
+Create a development database, such as `WorkOrderDb`. For integration testing, create a separate database, such as `WorkOrderTestDb`.
+
+Store connection strings using .NET user secrets rather than committing credentials:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=WorkOrderDb;Username=postgres;Password=YOUR_PASSWORD" --project WorkOrderManagement.Api
+
+dotnet user-secrets set "ConnectionStrings:TestConnection" "Host=localhost;Database=WorkOrderTestDb;Username=postgres;Password=YOUR_PASSWORD" --project WorkOrderManagement.Api
+```
+
+Replace `YOUR_PASSWORD` and database names as needed. The application uses `DefaultConnection`; the integration tests use `TestConnection`.
+
+### 3. Apply migrations
+From the repository root:
 
 ```bash
 dotnet ef database update --project WorkOrderManagement.Api
 ```
 
-#### 3. Run the Web API
-To launch the API server, navigate to the API project directory and start it:
-
+### 4. Run the API
 ```bash
-cd WorkOrderManagement.Api
-dotnet run
+dotnet run --project WorkOrderManagement.Api --launch-profile http
 ```
 
-## Testing
-This solution includes an **xUnit test suite** utilizing `Moq` and `Microsoft.AspNetCore.Mvc.Testing` for integration tests.
+With the repository's HTTP launch profile, the API runs at `http://localhost:5094`.
 
-To run all unit and integration tests, navigate to the root directory (or the test project directory) and execute:
+Try the health check:
+
+```bash
+curl http://localhost:5094/health
+```
+
+The application exposes OpenAPI documentation in the **Development** environment at `/openapi/v1.json`. This is an OpenAPI JSON document, not a Swagger UI.
+
+## Testing
+The test project contains controller unit tests and integration tests using `WebApplicationFactory` and a separate PostgreSQL database.
+
+Run all tests from the repository root:
 
 ```bash
 dotnet test
 ```
 
-## Deployment
+Integration tests apply EF Core migrations to the configured test database. Use a dedicated test database; tests modify and clean up test data.
 
-The API is deployed to Microsoft Azure using:
+## CI/CD and Azure deployment
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs on pushes and pull requests. It restores dependencies, builds the solution, runs tests with a PostgreSQL service container, and publishes the API artifact.
 
-- Azure App Service for hosting the ASP.NET Core API
-- Azure Database for PostgreSQL Flexible Server for persistent storage
-- App Service environment variables for production configuration and secrets
-- Azure App Service diagnostics and Log Stream for application logging
+On pushes to `main`, the workflow also authenticates to Azure through OpenID Connect (OIDC) and deploys the published application to **Azure App Service**.
 
-The application is currently deployed manually by creating a Release
-publish artifact with:
+The cloud setup uses Azure Database for PostgreSQL and environment-based connection-string configuration. Application diagnostics are supported through Azure App Service logging.
 
-```bash
-dotnet publish -c Release
-```
+The deployed API is **not published here as an open public endpoint** because authentication and authorization have not yet been implemented.
 
-The published output is packaged and deployed to Azure App Service.
+## Current scope and limitations
+- The implemented public API surface manages **work orders**; customer, asset, and technician management endpoints are not currently exposed.
+- Filtering, sorting, and pagination are available on the work-order list endpoint.
+- Updates use `PUT` and supply the complete set of editable work-order fields; partial updates are not implemented.
+- Authentication and authorization have not yet been implemented. The hosted API is not intended for unrestricted public use.
+- The `/health` endpoint provides a basic application health check; it is not a database connectivity test.
 
-## Notes
+## License
 
-The application is built with four main components: `Controller → Service → EF Core → PostgreSQL`.
-This is done to:
-* Split up responsibilities.
-* Avoid harmful actions and to not overshare data.
-* Make it easier to debug, and make tests.
-
-The application is currently just a basic CRUD API.
-
-Only the GetAll() method currently supports filtering/sorting/pagination through 
-query parameters.
-
-The unit tests specifically tests the controller directly, isolating the methods 
-so the api or database does not affect the outcome of the tests. 
-
-Integration tests on the other hand includes several layers of the system,
-so it will catch problems with the api or database.
-
-The API is currently deployed to Microsoft Azure, but the live endpoint is not publicly linked yet because authentication/authorization has not been implemented.
+This project is licensed under the [MIT License](LICENSE).
